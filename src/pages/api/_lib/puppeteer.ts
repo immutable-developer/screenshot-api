@@ -4,12 +4,7 @@ import puppeteer from "puppeteer-core";
 import chrome from "chrome-aws-lambda";
 let _page: Page | null;
 
-const isDev = !process.env.AWS_REGION;
-const isLocal = !process.env.AWS_REGION;
-
-const exePath = isLocal
-  ? await chrome.executablePath
-  : await chrome.executablePath;
+const exePath = await chrome.executablePath;
 
 async function getPage() {
   if (_page) return _page;
