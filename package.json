@@ -1,19 +1,43 @@
 {
-  "name": "screenshot",
-  "version": "1.0.0",
-  "description": "Serverless API to take screenshots of websites with Puppeteer.",
+  "name": "clique-capital-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "vercel-build": "yarn install"
+    "build": "next build",
+    "dev": "next dev",
+    "lint": "next lint",
+    "start": "next start"
   },
   "dependencies": {
+    "@t3-oss/env-nextjs": "^0.10.1",
     "chrome-aws-lambda": "7.0.0",
+    "express": "^4.17.1",
+    "geist": "^1.3.0",
+    "next": "^14.2.1",
+    "puppeteer": "^22.8.0",
     "puppeteer-core": "13.1.2",
-    "express": "^4.17.1"
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "zod": "^3.23.3"
   },
   "devDependencies": {
-    "typescript": "4.1.5"
+    "@types/eslint": "^8.56.2",
+    "@types/node": "^20.11.20",
+    "@types/react": "^18.2.57",
+    "@types/react-dom": "^18.2.19",
+    "@typescript-eslint/eslint-plugin": "^7.1.1",
+    "@typescript-eslint/parser": "^7.1.1",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.1.3",
+    "postcss": "^8.4.34",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.4.2"
   },
-  "engines": {
-    "node": "18.x"
-  }
+  "ct3aMetadata": {
+    "initVersion": "7.33.1"
+  },
+  "packageManager": "npm@10.2.4"
 }
