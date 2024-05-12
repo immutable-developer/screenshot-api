@@ -23,12 +23,16 @@ async function getPage() {
       "--single-process",
     ],
     // @ts-ignore
-    executablePath: executablePath(),
     headless: true,
   };
   if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+    // @ts-ignore
     options.executablePath = await chrome.executablePath;
     options.args = chrome.args;
+    options.headless = chrome.headless;
+  } else {
+    // @ts-ignore
+    options.executablePath = await executablePath();
   }
   console.log(options);
   // @ts-ignore
