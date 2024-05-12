@@ -5,7 +5,7 @@ async function getPage(width: string, height: string) {
   const browser = await playwright.chromium.launch({
     args: chromium.args,
     executablePath: await chromium.executablePath(),
-    headless: chromium.headless === "shell" ? false : true,
+    headless: true,
   });
 
   return await browser.newPage({
