@@ -3,16 +3,23 @@ import puppeteer from "puppeteer-core";
 
 import chrome from "chrome-aws-lambda";
 let _page: Page | null;
-
-const exePath = await chrome.executablePath;
+import { executablePath } from "puppeteer";
 
 async function getPage() {
   if (_page) return _page;
   const options = {
-    args: chrome.args,
-    executablePath: exePath,
-    headless: chrome.headless,
+    args: [
+      // ...chrome.args,
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--single-process",
+    ],
+    // @ts-ignore
+    executablePath: executablePath(),
+    headless: true,
   };
+  console.log(options);
   const browser = await puppeteer.launch(options);
   _page = await browser.newPage();
   return _page;
@@ -31,7 +38,7 @@ export async function getScreenshot(
     deviceScaleFactor: 2,
   });
   const file = await page.screenshot();
-  await page.browser().close();
+  // await page.browser().close();
 
   return file;
 }
