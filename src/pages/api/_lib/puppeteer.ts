@@ -1,64 +1,32 @@
-import { type Page } from "puppeteer-core";
+import playwright from "playwright-core";
+import chromium from "chrome-aws-lambda";
 
-import chrome from "chrome-aws-lambda";
-let _page: Page | null;
-import { executablePath } from "puppeteer";
+async function getPage(width: string, height: string) {
+  const browser = await playwright.chromium.launch({
+    args: chromium.args,
+    executablePath: await chromium.executablePath,
+    headless: chromium.headless,
+  });
 
-let puppeteer: any;
-if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
-  puppeteer = require("puppeteer-core");
-} else {
-  puppeteer = require("puppeteer");
-}
-
-async function getPage() {
-  if (_page) return _page;
-  const options = {
-    args: [
-      // ...chrome.args,
-
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--single-process",
-    ],
-    // @ts-ignore
-    headless: true,
-  };
-  if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
-    // @ts-ignore
-    options.executablePath = await chrome.executablePath;
-    options.args = chrome.args;
-    options.headless = chrome.headless;
-  } else {
-    // @ts-ignore
-    options.executablePath = await executablePath();
-  }
-  console.log(options);
-  // @ts-ignore
-  const browser = await puppeteer.launch(options);
-  // @ts-ignore
-  _page = await browser.newPage();
-  return _page;
+  return await browser.newPage({
+    viewport: {
+      width: Number(width) || 1280,
+      height: Number(height) || 720,
+    },
+  });
 }
 
 export async function getScreenshot(
   url: string,
-  width: string | string[] | undefined,
-  height: string | string[] | undefined,
+  width: string,
+  height: string,
 ) {
-  const page = await getPage();
-  // @ts-ignore
+  const page = await getPage(width, height);
   await page.goto(url);
-  // @ts-ignore
-  await page.setViewport({
-    width: Number(width) || 1280,
-    height: Number(height) || 720,
-    deviceScaleFactor: 2,
+  const file = await page.screenshot({
+    type: "png",
   });
-  // @ts-ignore
-  const file = await page.screenshot();
-  // await page.browser().close();
+  await page.context().close();
 
   return file;
 }
