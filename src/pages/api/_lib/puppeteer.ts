@@ -1,11 +1,11 @@
 import playwright from "playwright-core";
-import chromium from "chrome-aws-lambda";
+import chromium from "@sparticuz/chromium";
 
 async function getPage(width: string, height: string) {
   const browser = await playwright.chromium.launch({
     args: chromium.args,
-    executablePath: await chromium.executablePath,
-    headless: chromium.headless,
+    executablePath: await chromium.executablePath(),
+    headless: chromium.headless === "shell" ? false : true,
   });
 
   return await browser.newPage({
