@@ -2,7 +2,7 @@ import { getScreenshot } from "./_lib/puppeteer";
 import { type NextApiRequest, type NextApiResponse } from "next";
 
 export const config = {
-  maxDuration: 60,
+  maxDuration: 300,
 };
 export default async function handler(
   req: NextApiRequest,
