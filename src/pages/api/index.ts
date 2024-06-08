@@ -1,56 +1,88 @@
-import { getScreenshot } from "./_lib/puppeteer";
-import { type NextApiRequest, type NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from 'next';
+import { preprocess, z } from 'zod';
 
-export const config = {
-  maxDuration: 300,
-};
+import getScreenshot from '../../puppeteer';
+
+export const schema = z.object({
+  url: z.string().url().min(1).max(2048),
+  width: preprocess(
+    (_width) => parseInt(z.string().parse(_width), 10),
+    z.number().int().nonnegative().max(1920).min(1),
+  ).refine((width) => width % 2 === 0, {
+    message: 'The width specified must be an even number.',
+  }),
+  height: preprocess(
+    (_height) => parseInt(z.string().parse(_height), 10),
+    z.number().int().nonnegative().max(1080).min(1),
+  ).refine((height) => height % 2 === 0, {
+    message: 'The height specified must be an even number.',
+  }),
+  callbackUrl: z.string().url().optional(),
+});
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  if (!req.query.url) return res.status(400).send("No url query specified.");
-  if (typeof req.query.url !== "string")
-    return res.status(400).send("Invalid url query specified.");
-  if (!checkUrl(req.query.url))
-    return res.status(400).send("Invalid url query specified.");
   try {
-    if (
-      typeof req.query.width !== "string" ||
-      typeof req.query.height !== "string"
-    )
-      return res.status(400).send("Invalid width or height query specified.");
-    if (isNaN(parseInt(req.query.width)) || isNaN(parseInt(req.query.height)))
-      return res.status(400).send("Invalid width or height query specified.");
-    if (parseInt(req.query.width) < 1 || parseInt(req.query.height) < 1)
-      return res.status(400).send("Invalid width or height query specified.");
-    if (parseInt(req.query.width) > 1920 || parseInt(req.query.height) > 1080)
-      return res.status(400).send("Invalid width or height query specified.");
+    const parsedReq = schema.safeParse(req.query);
+    if (!parsedReq.success)
+      return res
+        .status(400)
+        .send(
+          `Invalid query specified. ${parsedReq.error.errors.map((error) => error.message).join(' ')}`,
+        );
+
     const file = await getScreenshot(
-      req.query.url,
-      req.query.width,
-      req.query.height,
+      parsedReq.data.url,
+      parsedReq.data.width,
+      parsedReq.data.height,
     );
-    res.setHeader("Content-Type", "image/png");
-    res.setHeader(
-      "Cache-Control",
-      "public, immutable, no-transform, s-maxage=86400, max-age=86400",
-    );
-    res.status(200).end(file);
+    if (!file)
+      return res
+        .status(500)
+        .send('An error occurred while generating the screenshot.');
+
+    if (parsedReq.data.callbackUrl) {
+      try {
+        await fetch(parsedReq.data.callbackUrl, {
+          method: 'POST',
+          body: JSON.stringify({
+            url: parsedReq.data.url,
+            width: parsedReq.data.width,
+            height: parsedReq.data.height,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        return res
+          .status(200)
+          .send(`Callback request sent to ${parsedReq.data.callbackUrl}.`);
+      } catch (error) {
+        console.error(error);
+        return res
+          .status(500)
+          .send('An error occurred while sending the callback request.');
+      }
+    } else {
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader(
+        'Cache-Control',
+        'public, immutable, no-transform, s-maxage=86400, max-age=86400',
+      );
+      return res.status(200).end(file);
+    }
   } catch (error) {
     console.error(error);
-    res
+    return res
       .status(500)
       .send(
-        "The server encountered an error. You may have inputted an invalid query.",
+        'The server encountered an error. You may have inputted an invalid query.',
       );
   }
 }
 
-function checkUrl(string: string) {
-  try {
-    new URL(string);
-  } catch (error) {
-    return false;
-  }
-  return true;
-}
+export const config = {
+  maxDuration: 300,
+};
