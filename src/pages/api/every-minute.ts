@@ -1,6 +1,6 @@
 import { type NextApiRequest, type NextApiResponse } from 'next';
 
-import { notify, SlackChannel, uptimeMessage } from '~/slack';
+import { notify, SlackChannel, uptimeMessage } from '~/lib/slack';
 
 export default async function handler(
   req: NextApiRequest,

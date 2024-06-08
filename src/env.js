@@ -7,6 +7,7 @@ const env = createEnv({
       .enum(['development', 'test', 'production'])
       .default('development'),
     SLACK_UPTIME_WEBHOOK_URL: z.string(),
+    SLACK_SCREENSHOT_API_WEBHOOK_URL: z.string(),
     UPTIME_REPORTING_URL: z.string(),
     UPTIME_SERVICE_URL: z.string(),
   },
@@ -18,6 +19,8 @@ const env = createEnv({
     SLACK_UPTIME_WEBHOOK_URL: process.env.SLACK_UPTIME_WEBHOOK_URL,
     UPTIME_REPORTING_URL: process.env.UPTIME_REPORTING_URL,
     UPTIME_SERVICE_URL: process.env.UPTIME_SERVICE_URL,
+    SLACK_SCREENSHOT_API_WEBHOOK_URL:
+      process.env.SLACK_SCREENSHOT_API_WEBHOOK_URL,
   },
   skipValidation: false,
   emptyStringAsUndefined: true,

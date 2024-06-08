@@ -14,13 +14,13 @@ const retryFetch = (
     if (timeout) setTimeout(() => reject(new Error('error: timeout')), timeout);
 
     const wrapper = (n: number) => {
+      let wrapperRetries = n;
       fetch(url, fetchOptions)
         .then((res) => resolve(res))
         .catch(async (err) => {
-          if (n > 0) {
+          if (retries > 0) {
             await delay(retryDelay);
-            // eslint-disable-next-line no-param-reassign
-            wrapper(--n);
+            wrapper(--wrapperRetries);
           } else {
             reject(err);
           }
