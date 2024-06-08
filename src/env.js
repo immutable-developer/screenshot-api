@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 const env = createEnv({
   server: {
+    API_KEY: z.string(),
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
@@ -21,6 +22,7 @@ const env = createEnv({
     UPTIME_SERVICE_URL: process.env.UPTIME_SERVICE_URL,
     SLACK_SCREENSHOT_API_WEBHOOK_URL:
       process.env.SLACK_SCREENSHOT_API_WEBHOOK_URL,
+    API_KEY: process.env.API_KEY,
   },
   skipValidation: false,
   emptyStringAsUndefined: true,

@@ -1,7 +1,9 @@
 import { type NextApiRequest, type NextApiResponse } from 'next';
 import { preprocess, z } from 'zod';
+import { use } from 'next-api-route-middleware';
 
 import { notify, SlackChannel } from '~/lib/slack';
+import { authMiddleware } from '~/middleware/authMiddleware';
 
 import getScreenshot from '../../lib/puppeteer';
 
@@ -24,9 +26,15 @@ export const schema = z.object({
   callbackUrl: z.string().optional(),
 });
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse<
+    | string
+    | Buffer
+    | {
+        error: string;
+      }
+  >,
 ) {
   try {
     console.log('Request query:', req.query);
@@ -113,3 +121,6 @@ export default async function handler(
 export const config = {
   maxDuration: 300,
 };
+
+// @ts-ignore
+export default use(authMiddleware, handler);
